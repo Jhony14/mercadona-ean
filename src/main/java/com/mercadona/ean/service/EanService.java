@@ -41,7 +41,7 @@ public class EanService {
         return product;
     }
 
-    private void validateEan(String ean) {
+    public void validateEan(String ean) {
         if (!ean.matches("^\\d{13}$")) {
             throw new IllegalArgumentException("Invalid EAN format. EAN must be a 13-digit number.");
         }
