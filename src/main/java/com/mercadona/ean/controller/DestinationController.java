@@ -10,29 +10,29 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/destinations")
+@RequestMapping("/api/destinations")
 public class DestinationController {
 
     @Autowired
     private DestinationService destinationService;
 
-    @GetMapping
+    @GetMapping("/getAllDestinations")
     public ResponseEntity<List<Destination>> getAllDestinations() {
         return ResponseEntity.ok(destinationService.getAllDestinations());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/getDestinationById/{id}")
     public ResponseEntity<Destination> getDestinationById(@PathVariable Long id) {
         Optional<Destination> destination = destinationService.getDestinationById(id);
         return destination.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping
+    @PostMapping("createDestination")
     public ResponseEntity<Destination> createDestination(@RequestBody Destination destination) {
         return ResponseEntity.ok(destinationService.saveDestination(destination));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/updateDestination/{id}")
     public ResponseEntity<Destination> updateDestination(@PathVariable Long id, @RequestBody Destination destination) {
         Optional<Destination> existingDestination = destinationService.getDestinationById(id);
         if(existingDestination.isPresent()) {
@@ -43,7 +43,7 @@ public class DestinationController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deleteDestination/{id}")
     public ResponseEntity<Void> deleteDestination(@PathVariable Long id) {
         destinationService.deleteDestination(id);
         return ResponseEntity.noContent().build();

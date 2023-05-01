@@ -1,8 +1,12 @@
 package com.mercadona.ean.controller;
 
+import com.mercadona.ean.model.Destination;
 import com.mercadona.ean.model.Product;
+import com.mercadona.ean.model.Supplier;
+import com.mercadona.ean.service.DestinationService;
 import com.mercadona.ean.service.EanService;
 import com.mercadona.ean.service.ProductService;
+import com.mercadona.ean.service.SupplierService;
 
 import jakarta.validation.Valid;
 
@@ -20,6 +24,12 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private SupplierService supplierService;
+
+    @Autowired
+    private DestinationService destinationService;
 
     @Autowired
     private EanService eanService;
@@ -43,14 +53,26 @@ public class ProductController {
     }
 
     @PostMapping("/createProduct")
-    public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
+    public ResponseEntity<?> createProduct(@Valid @RequestBody Product product) {
         try {
             eanService.validateEan(product.getEan());
+
+            // Make sure supplier and destination exist and are associated with the product
+            Supplier supplier = supplierService.getSupplierById(product.getSupplier().getId())
+                    .orElseThrow(() -> new Exception("Supplier not found"));
+            Destination destination = destinationService.getDestinationById(product.getDestination().getId())
+                    .orElseThrow(() -> new Exception("Destination not found"));
+
+            product.setSupplier(supplier);
+            product.setDestination(destination);
+
             Product productObj = productService.saveProduct(product);
             return new ResponseEntity<>(productObj, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            System.err.println(e);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("An error occurred while creating the product.",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
