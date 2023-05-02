@@ -57,7 +57,6 @@ public class ProductController {
         try {
             eanService.validateEan(product.getEan());
 
-            // Make sure supplier and destination exist and are associated with the product
             Supplier supplier = supplierService.getSupplierById(product.getSupplier().getId())
                     .orElseThrow(() -> new Exception("Supplier not found"));
             Destination destination = destinationService.getDestinationById(product.getDestination().getId())
